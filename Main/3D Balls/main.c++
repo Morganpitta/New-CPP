@@ -57,19 +57,22 @@ int main()
         float speed = sf::Keyboard::isKeyPressed( sf::Keyboard::LControl ) ? 0.1 : 0.01 ;
         if ( sf::Keyboard::isKeyPressed( sf::Keyboard::W )  )
             camera.moveForward();
+        if ( sf::Keyboard::isKeyPressed( sf::Keyboard::S )  )
+            camera.moveBackwards();
         if ( isSelected )
         {
             camera.rotateYaw( ( sf::Mouse::getPosition( window ).x - window.getSize().x / 2.f ) / ( M_PI * 300 ) );
-            camera.rotatePitch( ( sf::Mouse::getPosition( window ).y - window.getSize().x / 2.f ) / ( M_PI * 300 ) );
+            camera.rotatePitch( -( sf::Mouse::getPosition( window ).y - window.getSize().x / 2.f ) / ( M_PI * 300 ) );
             sf::Mouse::setPosition( { (int) std::floor( window.getSize().x / 2.f ), (int) std::floor( window.getSize().y / 2.f ) }, window );
         }
-
-        camera.rotateYaw( M_PI / 50 );
-        camera.rotatePitch( M_PI / 50 );
         
         window.clear( sf::Color::Black );
-        
+
         particles.draw( window, camera );
+        
+        sf::Text text = sf::Text( "Yaw: " + std::to_string( camera.getYaw() ) + "\nPitch:" + std::to_string( camera.getPitch() ) + "\nX: "+std::to_string( camera.getPosition().x ) + ", Y: " +std::to_string( camera.getPosition().y ) + ", Z: " +std::to_string( camera.getPosition().z ), defaultFont );
+        text.setPosition( {0,30} );
+        window.draw( text );
 
         fps.draw( window, {0,0}, 30, sf::Color::White );
 

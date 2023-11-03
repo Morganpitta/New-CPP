@@ -4,12 +4,12 @@
     #include "SFML/System.hpp"
     #include <math.h>
 
-    sf::Vector3f rotatePosition( sf::Vector3f relativePosition, float yaw, float pitch, float roll = 0 )
+    sf::Vector3f rotatePosition( sf::Vector3f relativePosition, float yaw, float pitch, float roll )
     {
         return {
-            ( cos( yaw ) *  cos ( pitch ) ) * relativePosition.x + ( cos( yaw ) *  sin( pitch ) * sin( roll ) - sin( yaw ) * cos( roll ) ) * relativePosition.y + ( cos( yaw ) * sin ( pitch) * cos( roll ) + sin( yaw ) * sin ( roll ) ) * relativePosition.z,
+            ( cos( yaw ) *  cos ( pitch ) ) * relativePosition.x + ( cos( yaw ) *  sin( pitch ) * sin( roll ) - sin( yaw ) * cos( roll ) ) * relativePosition.y + ( cos( yaw ) * sin ( pitch ) * cos( roll ) + sin( yaw ) * sin ( roll ) ) * relativePosition.z,
             ( sin( yaw ) * cos( pitch ) ) * relativePosition.x + ( sin( yaw ) * sin( pitch ) * sin( roll ) + cos( yaw ) * cos( roll ) ) * relativePosition.y + ( sin( yaw ) * sin ( pitch ) * cos (roll) - cos( yaw ) *  sin( roll ) ) * relativePosition.z,
-            ( -sin( pitch ) ) * relativePosition.x + ( cos( pitch ) * sin( pitch ) ) * relativePosition.y + ( cos( pitch ) *  cos( roll )) * relativePosition.z
+            ( -sin( pitch ) ) * relativePosition.x + ( cos( pitch ) * sin( roll ) ) * relativePosition.y + ( cos( pitch ) *  cos( roll )) * relativePosition.z
         };
     }
 
@@ -56,7 +56,12 @@
 
             void moveForward()
             {
-                this->position += { cos( yaw ) / cos( pitch ), sin( pitch ), sin( yaw ) / cos( pitch ) };
+                this->position += { sin( yaw ) * cos( pitch ), sin( pitch ), cos( yaw ) * cos( pitch ) };
+            }
+
+            void moveBackwards()
+            {
+                this->position += { sin( yaw + M_PI ) / cos( pitch ), sin( pitch ), cos( yaw + M_PI ) / cos( pitch ) };
             }
 
             void rotateYaw( float angle )
@@ -72,7 +77,7 @@
             sf::Vector3f relativePositionTo( sf::Vector3f globalPosition )
             {
                 sf::Vector3f relativePosition = globalPosition - getPosition();
-                return rotatePosition( relativePosition, getYaw(), getPitch() );
+                return rotatePosition( relativePosition, 0, getYaw(), getPitch() );
             }
     };
 

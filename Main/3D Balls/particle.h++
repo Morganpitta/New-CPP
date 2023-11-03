@@ -53,7 +53,7 @@
             {
                 sf::Vector3f relativePosition = camera.relativePositionTo( getPosition() );
 
-                if ( relativePosition.z > 0 )
+                if ( relativePosition.z > 0.1 )
                 {
                     sf::VertexArray quad( sf::PrimitiveType::Quads, 4 );
 
