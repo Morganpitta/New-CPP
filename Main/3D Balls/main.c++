@@ -2,7 +2,12 @@
 #include <SFML/Graphics.hpp>
 #include "time.h++"
 #include "particleHandler.h++"
-#include <complex>
+
+template <typename T> 
+int sign( T val ) 
+{
+    return (T(0) < val) - (val < T(0));
+}
 
 int main()
 {
@@ -24,12 +29,13 @@ int main()
         {
             for ( int zIndex = 0; zIndex < 10; zIndex++ )
             {
-                particles.addParticle( Particle( {xIndex, yIndex, zIndex } ) );
+                particles.addParticle( Particle( {xIndex / 10.f, yIndex/10.f, zIndex/10.f } ) );
             }
         }
     }
 
-    Camera camera;
+    Camera camera( { 0.5, 0.5, -2 } );
+    sf::Clock startTime = sf::Clock();
 
     bool isSelected = false;
 
@@ -49,35 +55,55 @@ int main()
                         isSelected = !isSelected;
                         window.setMouseCursorVisible( !isSelected );
                         sf::Mouse::setPosition( { (int) std::floor( window.getSize().x / 2.f ), (int) std::floor( window.getSize().y / 2.f ) }, window );
+                    if ( event.key.code == sf::Keyboard::R )
+                        for ( int index = 0; index < particles.getNumberOfParticle(); index++ )
+                        {
+                            particles.getParticle( index ).setVelocity( {0,0,0} );
+                        }
+                    break;
+
+                case sf::Event::MouseWheelScrolled:
+                    forceStrength = forceStrength + sign( event.mouseWheelScroll.delta ) * std::pow( abs( event.mouseWheelScroll.delta ) / 2, 3 );
                     break;
             }
         }
 
 
-        float speed = sf::Keyboard::isKeyPressed( sf::Keyboard::LControl ) ? 0.1 : 0.01 ;
-        if ( sf::Keyboard::isKeyPressed( sf::Keyboard::W )  )
-            camera.moveForward();
-        if ( sf::Keyboard::isKeyPressed( sf::Keyboard::S )  )
-            camera.moveBackwards();
         if ( isSelected )
         {
+            float speed = sf::Keyboard::isKeyPressed( sf::Keyboard::LControl ) ? 0.1 : 0.01 ;
+            if ( sf::Keyboard::isKeyPressed( sf::Keyboard::W )  )
+                camera.moveForward( speed );
+            if ( sf::Keyboard::isKeyPressed( sf::Keyboard::S )  )
+                camera.moveBackwards( speed );
+            if ( sf::Keyboard::isKeyPressed( sf::Keyboard::A )  )
+                camera.moveLeft( speed );
+            if ( sf::Keyboard::isKeyPressed( sf::Keyboard::D )  )
+                camera.moveRight( speed );
+            if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Space )  )
+                camera.moveUp( speed );
+            if ( sf::Keyboard::isKeyPressed( sf::Keyboard::LShift )  )
+                camera.moveDown( speed );
             camera.rotateYaw( ( sf::Mouse::getPosition( window ).x - window.getSize().x / 2.f ) / ( M_PI * 300 ) );
-            camera.rotatePitch( -( sf::Mouse::getPosition( window ).y - window.getSize().x / 2.f ) / ( M_PI * 300 ) );
+            camera.rotatePitch( -( sf::Mouse::getPosition( window ).y - window.getSize().y / 2.f ) / ( M_PI * 300 ) );
             sf::Mouse::setPosition( { (int) std::floor( window.getSize().x / 2.f ), (int) std::floor( window.getSize().y / 2.f ) }, window );
         }
+
+        if ( startTime.getElapsedTime().asSeconds() > 6 )
+            particles.update();
         
         window.clear( sf::Color::Black );
 
         particles.draw( window, camera );
         
-        sf::Text text = sf::Text( "Yaw: " + std::to_string( camera.getYaw() ) + "\nPitch:" + std::to_string( camera.getPitch() ) + "\nX: "+std::to_string( camera.getPosition().x ) + ", Y: " +std::to_string( camera.getPosition().y ) + ", Z: " +std::to_string( camera.getPosition().z ), defaultFont );
+        sf::Text text = sf::Text( "Force: " + std::to_string(forceStrength), defaultFont );
         text.setPosition( {0,30} );
         window.draw( text );
-
+        
         fps.draw( window, {0,0}, 30, sf::Color::White );
 
         window.display();
-        fps.restartAndSleep();
+        //fps.restartAndSleep();
     }
 
     return 0;

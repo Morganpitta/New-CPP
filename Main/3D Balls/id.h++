@@ -6,16 +6,16 @@
     class IdGenerator
     {
         public:
-            Id lastId;
+            Id nextId;
             
             IdGenerator()
             {
-                this->lastId = 0;
+                this->nextId = 0;
             }
 
             Id getNextId()
             {
-                return lastId++;
+                return nextId++;
             }
     };
 
