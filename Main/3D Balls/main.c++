@@ -23,18 +23,20 @@ int main()
 
     ParticleHandler particles;
 
-    for ( int xIndex = 0; xIndex < 10; xIndex++ )
+    float size = 10 - 1;
+
+    for ( int xIndex = 0; xIndex <= size; xIndex++ )
     {   
-        for ( int yIndex = 0; yIndex < 10; yIndex++ )
+        for ( int yIndex = 0; yIndex <= size; yIndex++ )
         {
-            for ( int zIndex = 0; zIndex < 10; zIndex++ )
+            for ( int zIndex = 0; zIndex <= size; zIndex++ )
             {
-                particles.addParticle( Particle( {xIndex / 10.f, yIndex/10.f, zIndex/10.f } ) );
+                particles.addParticle( Particle( {xIndex / size - 1/2.f, yIndex / size - 1/2.f, zIndex / size - 1/2.f }, getRandomUnitVector() ) );
             }
         }
     }
 
-    Camera camera( { 0.5, 0.5, -2 } );
+    Camera camera( { 0, 0, -4 } );
     sf::Clock startTime = sf::Clock();
 
     bool isSelected = false;
@@ -56,7 +58,7 @@ int main()
                         window.setMouseCursorVisible( !isSelected );
                         sf::Mouse::setPosition( { (int) std::floor( window.getSize().x / 2.f ), (int) std::floor( window.getSize().y / 2.f ) }, window );
                     if ( event.key.code == sf::Keyboard::R )
-                        for ( int index = 0; index < particles.getNumberOfParticle(); index++ )
+                        for ( int index = 0; index < particles.getNumberOfParticles(); index++ )
                         {
                             particles.getParticle( index ).setVelocity( {0,0,0} );
                         }
@@ -96,7 +98,7 @@ int main()
 
         particles.draw( window, camera );
         
-        sf::Text text = sf::Text( "Force: " + std::to_string(forceStrength), defaultFont );
+        sf::Text text = sf::Text( "Force: " + std::to_string(forceStrength) + " Average speed: " + std::to_string(particles.getAverageSpeed()) + "\nAverage velocity: " + std::to_string(particles.getAverageVelocity().x) + ", " + std::to_string(particles.getAverageVelocity().y) + ", " + std::to_string(particles.getAverageVelocity().z), defaultFont );
         text.setPosition( {0,30} );
         window.draw( text );
         

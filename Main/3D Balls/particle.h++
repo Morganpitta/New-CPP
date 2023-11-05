@@ -89,7 +89,7 @@
 
             void update()
             {
-                applyForces();
+                //applyForces();
 
                 updatePosition();
             }
