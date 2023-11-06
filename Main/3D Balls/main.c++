@@ -16,6 +16,7 @@ int main()
 
     if ( !loadBaseAssets() )
         return 1;
+    
     if ( !loadBallTexture() )
         return 1;
 
