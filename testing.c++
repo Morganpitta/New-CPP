@@ -20,7 +20,7 @@ class BinaryTree
             }
         };
 
-        Node *rootNode;
+        Node *rootNode; 
 
         BinaryTree()
         {
