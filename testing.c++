@@ -2,7 +2,7 @@
 #include <iostream>
 #include <map>
 
-template<typename T>
+template <typename T>
 class BinaryTree
 {
     public:
@@ -47,7 +47,20 @@ class BinaryTree
                     id = getNode(id)->leftNode;
                 }
             }
-        }
+            else if (value > currentNode->node.data)
+            {
+                if (currentNode->node.rightNode == nullptr)
+                {
+                    currentNode->node.rightNode = new Node{currentNode->node, nullptr, nullptr, value};
+                    this->nodesList.insert(this->nodesList.end(), currentNode->node.rightNode);
+                }
+                else
+                {
+                    placeValue(value, currentNode->node.rightNode);
+                }
+            }
+        };
+        
 };
 */
 
