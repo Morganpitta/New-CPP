@@ -24,7 +24,7 @@ int main()
 
     ParticleHandler particles;
 
-    float size = 10 - 1;
+    float size = 7 - 1;
 
     for ( int xIndex = 0; xIndex <= size; xIndex++ )
     {   

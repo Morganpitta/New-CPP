@@ -1,86 +1,70 @@
+/*
 #include <iostream>
-#include <vector>
+#include <map>
 
 template<typename T>
 class BinaryTree
 {
     public:
+
+        typedef int NodeId;
+        static const NodeId NullNode = -1; 
+        
         struct Node
         {
+            NodeId id;
             T data;
-            Node *parent;
-            Node *left = nullptr;
-            Node *right = nullptr;
-            
-            Node( T data, Node *parent = nullptr )
-            {
-                this->index = index;
-                this->data = data;
-                this->parent = parent;
-            }
+            NodeId parentNode = NullNode;
+            NodeId leftNode   = NullNode;
+            NodeId rightNode  = NullNode;
         };
 
-        Node *rootNode; 
+        std::map<NodeId, Node> nodes;
+        NodeId rootNode;
+        std::size_t nextId = 0;
 
-        BinaryTree()
+        Node *getNode( NodeId id )
         {
-            rootNode = nullptr;
+            if ( this->nodes.count( id ) == 0 )
+                return nullptr;
+            return &this->nodes[id];
         }
 
-        void insert( const T &value )
+        void insert( T data )
         {
-            if ( rootNode == nullptr )
-                rootNode = new Node( value, nullptr );
-            else
-                traverseInsert( rootNode, value );
-        }
-
-        void traverseInsert( Node *node, const T &value )
-        {
-            if ( value < node->data )
+            NodeId id = this->rootNode;
+            if ( id == NullNode )
             {
-                if ( node->left == nullptr ) 
-                {
-                    node->left = new Node( value, node );
-                }
-                else
-                {
-                    traverseInsert( node->left, value );
-                }
+                id = nextId++;
+                this->rootNode = id;
+                nodes[id] = {id,data};
+                return;
             }
-            else if ( value > node->data )
+            while ( true )
             {
-                if ( node->right == nullptr )
+                if ( data < getNode(id)->data )
                 {
-                    node->right = new Node( value, node );
+                    id = getNode(id)->leftNode;
                 }
-                else
-                {
-                    traverseInsert( node->right, value );
-                }
-            }
-        }
-
-        void insert( const std::vector<T> &values )
-        {
-            for ( const T &value: values )
-            {
-                insert( value );
             }
         }
 };
+*/
 
-template<typename T>
-std::ostream &operator<<(std::ostream &stream, const BinaryTree<T> &tree)
-{
-    return stream;
-}
+
+#include <fstream>
 
 int main()
 {
-    BinaryTree<int> tree;
+    std::fstream file;
+    file.open( "file.txt", std::ios::in | std::ios::out );
+    if (!file.is_open())
+        return 1;
 
-    tree.insert( {1,-1,5,9,0,4} );
+    std::string line;
+    while ( std::getline(file, line) )
+    {
+        
+    }
 
-    return 0;
 }
