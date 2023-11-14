@@ -1,0 +1,84 @@
+#if !defined( SQL_HPP )
+#define SQL_HPP
+
+    #include "sqlite3.h"
+    #include "assert.h++"
+    #include <functional>
+    #include <map>
+
+    class Database
+    {
+        public:
+            typedef std::map<std::string,std::vector<std::string>> Table;
+
+        private:
+            sqlite3* database;
+            bool error = false;
+            std::string errorMessage = "";
+            Table callbackValue;
+
+            static int callbackWrapper(void *objPtr, int argc, char **argv, char **azColName) {
+                return ((Database *)objPtr)->callback(argc, argv, azColName);
+            }
+
+        public:
+            Database( std::string file )
+            {
+                open( file );
+            }
+
+            void open( std::string file )
+            {
+                if ( sqlite3_open( file.c_str(), &this->database ) != SQLITE_OK )
+                {
+                    this->error = true;
+                    this->errorMessage = sqlite3_errmsg( this->database );
+                }
+            }
+
+            int callback( int numberOfColumns, char **items, char **columnNames )
+            {;
+                for ( int index = 0; index < numberOfColumns; index++ )
+                {
+                    callbackValue[columnNames[index]].push_back( items[index] );
+                }
+
+                return 0;
+            }
+
+            Table execute( std::string sql )
+            {
+                char *errorMessage;
+                callbackValue.clear();
+                if ( sqlite3_exec( this->database, sql.c_str(), &callbackWrapper, this, &errorMessage ) != SQLITE_OK )
+                {
+                    this->error = true;
+                    this->errorMessage = errorMessage;
+                    free( errorMessage );
+                }
+
+                return callbackValue;
+            }
+
+            bool failed()
+            {
+                return this->error;
+            }
+
+            std::string getErrorMessage()
+            {
+                return this->errorMessage;
+            }
+
+            void close()
+            {
+                sqlite3_close( database );
+            }
+
+            ~Database()
+            {
+                close();
+            }
+    };
+
+#endif /* SQL_HPP */

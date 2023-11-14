@@ -1,83 +1,27 @@
-/*
-#include <iostream>
-#include <map>
-
-template <typename T>
-class BinaryTree
-{
-    public:
-
-        typedef int NodeId;
-        static const NodeId NullNode = -1; 
-        
-        struct Node
-        {
-            NodeId id;
-            T data;
-            NodeId parentNode = NullNode;
-            NodeId leftNode   = NullNode;
-            NodeId rightNode  = NullNode;
-        };
-
-        std::map<NodeId, Node> nodes;
-        NodeId rootNode;
-        std::size_t nextId = 0;
-
-        Node *getNode( NodeId id )
-        {
-            if ( this->nodes.count( id ) == 0 )
-                return nullptr;
-            return &this->nodes[id];
-        }
-
-        void insert( T data )
-        {
-            NodeId id = this->rootNode;
-            if ( id == NullNode )
-            {
-                id = nextId++;
-                this->rootNode = id;
-                nodes[id] = {id,data};
-                return;
-            }
-            while ( true )
-            {
-                if ( data < getNode(id)->data )
-                {
-                    id = getNode(id)->leftNode;
-                }
-            }
-            else if (value > currentNode->node.data)
-            {
-                if (currentNode->node.rightNode == nullptr)
-                {
-                    currentNode->node.rightNode = new Node{currentNode->node, nullptr, nullptr, value};
-                    this->nodesList.insert(this->nodesList.end(), currentNode->node.rightNode);
-                }
-                else
-                {
-                    placeValue(value, currentNode->node.rightNode);
-                }
-            }
-        };
-        
-};
-*/
-
-
-#include <fstream>
+#include "sql.h++"
 
 int main()
 {
-    std::fstream file;
-    file.open( "file.txt", std::ios::in | std::ios::out );
-    if (!file.is_open())
-        return 1;
+    Database database("database.db");
 
-    std::string line;
-    while ( std::getline(file, line) )
-    {
-        
-    }
+    database.execute( "CREATE TABLE COMPANY("
+      "ID INT PRIMARY KEY NOT NULL,"
+      "NAME TEXT NOT NULL,"
+      "AGE INT NOT NULL,"
+      "ADDRESS CHAR(50),"
+      "SALARY REAL );" );
 
+    database.execute(
+      "INSERT INTO COMPANY (ID,NAME,AGE,ADDRESS,SALARY) "
+      "VALUES (1, 'Paul', 32, 'California', 20000.00 ); "
+      "INSERT INTO COMPANY (ID,NAME,AGE,ADDRESS,SALARY) "
+      "VALUES (2, 'Allen', 25, 'Texas', 15000.00 ); "
+      "INSERT INTO COMPANY (ID,NAME,AGE,ADDRESS,SALARY)"
+      "VALUES (3, 'Teddy', 23, 'Norway', 20000.00 );"
+      "INSERT INTO COMPANY (ID,NAME,AGE,ADDRESS,SALARY)"
+      "VALUES (4, 'Mark', 25, 'Rich-Mond ', 65000.00 );" );
+
+    Database::Table data = database.execute( "SELECT * from COMPANY" );
+
+    return 0;
 }
