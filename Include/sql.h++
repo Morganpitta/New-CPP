@@ -21,6 +21,16 @@
                 return ((Database *)objPtr)->callback(argc, argv, azColName);
             }
 
+            int callback( int numberOfColumns, char **items, char **columnNames )
+            {
+                for ( int index = 0; index < numberOfColumns; index++ )
+                {
+                    callbackValue[columnNames[index]].push_back( items[index] == NULL ? "NULL" : items[index] );
+                }
+
+                return 0;
+            }
+
         public:
             Database( std::string file )
             {
@@ -36,19 +46,9 @@
                 }
             }
 
-            int callback( int numberOfColumns, char **items, char **columnNames )
-            {;
-                for ( int index = 0; index < numberOfColumns; index++ )
-                {
-                    callbackValue[columnNames[index]].push_back( items[index] );
-                }
-
-                return 0;
-            }
-
             Table execute( std::string sql )
             {
-                char *errorMessage;
+                char *errorMessage = 0;
                 callbackValue.clear();
                 if ( sqlite3_exec( this->database, sql.c_str(), &callbackWrapper, this, &errorMessage ) != SQLITE_OK )
                 {
