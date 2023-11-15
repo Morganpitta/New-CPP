@@ -35,22 +35,59 @@ int main()
             }
             case 3:
             {
-                std::cout << "Enter id of event: ";
+                std::cout << "Enter name of event: ";
                 std::getline( std::cin, input );
-                int eventId = std::stoi( input );
-                std::cout << "Enter id of attendee: ";
+                std::string eventName = input;
+                std::cout << "Enter name of attendee: ";
                 std::getline( std::cin, input );
                 
-                calendar.addAttendee( eventId, std::stoi(input) );
+                calendar.addAttendee( eventName, input );
                 break;
             }
-            case 4:    
-                Database::Table events = calendar.events.execute( "SELECT * FROM Events" );
-                for ( int index = 0; index < events["ID"].size(); index++ )
+            case 4:
+            {
+                Database::Table events = calendar.execute( "SELECT * FROM Events" );
+                for ( int index = 0; index < events.records.size(); index++ )
                 {
-                    std::cout << events["ID"][index] << ": " << events["NAME"][index] << " at " << events["DATE"][index] << std::endl;
+                    Database::Record &record = events.records[index];
+                    std::cout << record["name"] << " at " << record["Date"] << std::endl;
                 }
                 break;
+            }
+            case 5:
+            {
+                Database::Table events = calendar.execute( "SELECT * FROM People" );
+                for ( int index = 0; index < events.records.size(); index++ )
+                {
+                    Database::Record &record = events.records[index];
+                    std::cout << record["name"] << std::endl;
+                }
+                break;
+            }
+            case 6:
+            {
+                std::cout << "Enter name of person: ";
+                std::getline( std::cin, input );
+                Database::Table events = calendar.execute( "SELECT * FROM Attendees WHERE PersonId = " + input );
+                for ( int index = 0; index < events.records.size(); index++ )
+                {
+                    Database::Record &record = events.records[index];
+                    std::cout << record["EventName"] << std::endl;
+                }
+                break;
+            }
+            case 7:
+            {
+                std::cout << "Enter name of event: ";
+                std::getline( std::cin, input );
+                Database::Table events = calendar.execute( "SELECT * FROM Attendees WHERE EventId = " + input );
+                for ( int index = 0; index < events.records.size(); index++ )
+                {
+                    Database::Record &record = events.records[index];
+                    std::cout << record["PersonName"] << std::endl;
+                }
+                break;
+            }
         }
     }
 

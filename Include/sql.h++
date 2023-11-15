@@ -9,7 +9,20 @@
     class Database
     {
         public:
-            typedef std::map<std::string,std::vector<std::string>> Table;
+            typedef std::map<std::string, std::string> Record;
+            
+            class Table
+            {
+                public:
+                    std::vector<Record> records;
+                    std::vector<std::string> attributes;
+
+                    void clear()
+                    {
+                        records.clear();
+                        attributes.clear();
+                    }
+            };
 
         private:
             sqlite3* database;
@@ -23,10 +36,12 @@
 
             int callback( int numberOfColumns, char **items, char **columnNames )
             {
+                Record record;
                 for ( int index = 0; index < numberOfColumns; index++ )
                 {
-                    callbackValue[columnNames[index]].push_back( items[index] == NULL ? "NULL" : items[index] );
+                    record[columnNames[index]] = items[index] == NULL ? "NULL" : items[index];
                 }
+                callbackValue.records.push_back( record );
 
                 return 0;
             }

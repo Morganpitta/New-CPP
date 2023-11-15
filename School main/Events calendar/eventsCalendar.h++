@@ -1,68 +1,79 @@
 #if !defined( EVENTS_CALENDAR_HPP )
 #define EVENTS_CALENDAR_HPP
 
-    #include "event.h++"
-    #include "person.h++"
+    #include "sql.h++"
     
-    class EventsCalendar
+    struct Person
+    {
+        std::string name;
+    };
+
+    struct Event
+    {
+        std::string name;
+        std::string date;
+    };
+    
+    class EventsCalendar: public Database
     {
         int nextEventId = 0;
         int nextPersonId = 0;
 
         public:
-            EventsDatabase events;
-            PeopleDatabase people;
-            Database attendees;
 
-            EventsCalendar( std::string file ): events(file), people(file), attendees(file)
+            EventsCalendar( std::string file ): Database( file )
             {
-                attendees.execute( 
+                execute( 
+                    "CREATE TABLE IF NOT EXISTS People("
+                    "   Name VARCHAR(255) NOT NULL,"
+                    ");"
+                );
+
+                execute( 
+                    "CREATE TABLE IF NOT EXISTS Events("
+                    "   Name VARCHAR(255) NOT NULL,"
+                    "   Date VARCHAR(255) NOT NULL,"
+                    ");"
+                );
+
+                execute( 
                     "CREATE TABLE IF NOT EXISTS Attendees("
-                    "   EVENTID INT NOT NULL,"
-                    "   PERSONID INT NOT NULL,"
-                    "   PRIMARY KEY (EVENTID,PERSONID)"
+                    "   EventName VARCHAR(255) NOT NULL,"
+                    "   PersonName VARCHAR(255) NOT NULL,"
+                    "   PRIMARY KEY ( EventName, PersonName )"
                     ");"
                 );
             }
 
-            int addPerson( Person person )
+            void addPerson( Person person )
             {
-                if ( person.id == -1 )
-                    person.id = nextPersonId++;
-                people.add(person);
-                return person.id;
-            }
-
-            int addEvent( Event event )
-            {
-                if ( event.id == -1 )
-                    event.id = nextEventId++;
-                events.add(event);
-                return event.id;
-            }
-
-            void addAttendee( int eventId, int personId )
-            {
-                attendees.execute( 
-                    "INSERT INTO Events (EVENTID,PERSONID) "
-                    "VALUES ("
-                    + std::to_string( eventId ) + ", "
-                    + std::to_string( personId ) + " "
-                    ");"
+                execute(
+                    "INSERT INTO People ( Name )"
+                    "Values("
+                    + person.name +
+                    ")"
                 );
             }
 
-            Database::Table getAttendees( int eventId )
+            void addEvent( Event event )
             {
-                return attendees.execute(
-                    "SELECT * FROM Attendees WHERE EVENTID = " + std::to_string( eventId ) + ";"
+                execute(
+                    "INSERT INTO Events ( Name, Date )"
+                    "Values("
+                    + event.name + ","
+                    + event.date +
+                    ")"
                 );
             }
 
-            Database::Table getPersonEvents( int personId )
+            void addAttendee( std::string eventName, std::string personName )
             {
-                return attendees.execute(
-                    "SELECT * FROM Attendees WHERE PERSONID = " + std::to_string( personId ) + ";"
+                execute(
+                    "INSERT INTO Attendees ( EventName, PersonName )"
+                    "Values("
+                    + eventName + ","
+                    + personName +
+                    ")"
                 );
             }
     };
