@@ -53,8 +53,11 @@
                 if ( sqlite3_exec( this->database, sql.c_str(), &callbackWrapper, this, &errorMessage ) != SQLITE_OK )
                 {
                     this->error = true;
-                    this->errorMessage = errorMessage;
-                    free( errorMessage );
+                    if ( errorMessage )
+                    {
+                        this->errorMessage = errorMessage;
+                        sqlite3_free( errorMessage );
+                    }
                 }
 
                 return callbackValue;

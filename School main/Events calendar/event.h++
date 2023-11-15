@@ -5,9 +5,9 @@
 
     struct Event
     {
-        int id;
         std::string name;
         std::string date;
+        int id = -1;
     };
 
     class EventsDatabase: public Database
@@ -17,9 +17,9 @@
             {
                 execute( 
                     "CREATE TABLE IF NOT EXISTS Events("
-                    "'ID' INT PRIMARY KEY NOT NULL,"
-                    "'NAME' TEXT NOT NULL,"
-                    "'DATE' TEXT NOT NULL );" 
+                    "ID INT PRIMARY KEY NOT NULL,"
+                    "NAME TEXT NOT NULL,"
+                    "DATE TEXT NOT NULL );" 
                 );
             }
 
@@ -40,7 +40,7 @@
 
             void set( int id, Event event )
             {
-                Table data = execute(
+                execute(
                     "UPDATE Events "
                     "SET ID = " + std::to_string( event.id ) + " "
                     "NAME = " + event.name + " "
@@ -51,14 +51,23 @@
 
             void add( Event event )
             {
-                Table data = execute(
+                execute(
                     "INSERT INTO Events (ID,NAME,DATE) "
                     "VALUES ("
                     + std::to_string( event.id ) + ", "
-                    + event.name + ", "
-                    + event.date +
+                    "'" + event.name + "', "
+                    "'" + event.date + "'"
                     ");"
                 );
+            }
+            
+            bool has( int id )
+            {
+                Table data = execute(
+                    "SELECT * FROM Events WHERE ID = " + std::to_string(id) + ";"
+                );
+
+                return  data["ID"].size() > 0;
             }
     };
 
