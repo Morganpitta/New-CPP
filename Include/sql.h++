@@ -88,6 +88,12 @@
                 return this->errorMessage;
             }
 
+            void clearError()
+            {
+                this->error = false;
+                this->errorMessage = "";
+            }
+
             void close()
             {
                 sqlite3_close( database );

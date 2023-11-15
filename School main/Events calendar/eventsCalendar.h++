@@ -25,14 +25,14 @@
             {
                 execute( 
                     "CREATE TABLE IF NOT EXISTS People("
-                    "   Name VARCHAR(255) NOT NULL,"
+                    "   Name VARCHAR(255) NOT NULL"
                     ");"
                 );
 
                 execute( 
                     "CREATE TABLE IF NOT EXISTS Events("
                     "   Name VARCHAR(255) NOT NULL,"
-                    "   Date VARCHAR(255) NOT NULL,"
+                    "   Date VARCHAR(255) NOT NULL"
                     ");"
                 );
 
@@ -50,7 +50,7 @@
                 execute(
                     "INSERT INTO People ( Name )"
                     "Values("
-                    + person.name +
+                    "'" + person.name + "'"
                     ")"
                 );
             }
@@ -60,8 +60,8 @@
                 execute(
                     "INSERT INTO Events ( Name, Date )"
                     "Values("
-                    + event.name + ","
-                    + event.date +
+                    "'" + event.name + "',"
+                    "'" + event.date + "'"
                     ")"
                 );
             }
@@ -71,10 +71,62 @@
                 execute(
                     "INSERT INTO Attendees ( EventName, PersonName )"
                     "Values("
-                    + eventName + ","
-                    + personName +
+                    "'" + eventName + "',"
+                    "'" + personName + "'"
                     ")"
                 );
+            }
+
+            std::vector<std::string> getAllPeople()
+            {
+                Database::Table data = execute( "SELECT * FROM People" );
+                std::vector<std::string> people;
+                for ( int index = 0; index < data.records.size(); index++ )
+                {
+                    Database::Record &record = data.records[index];
+                    people.push_back( record["Name"] );
+                }
+
+                return people;
+            }
+
+            std::vector<std::string> getAllEvents()
+            {
+                Database::Table data = execute( "SELECT * FROM Events" );
+                std::vector<std::string> events;
+                for ( int index = 0; index < data.records.size(); index++ )
+                {
+                    Database::Record &record = data.records[index];
+                    events.push_back( record["Name"] );
+                }
+
+                return events;
+            }
+
+            std::vector<std::string> getEventByPerson( std::string personName )
+            {
+                Database::Table data = execute( "SELECT * FROM Attendees WHERE PersonName = '" + personName + "'" );
+                std::vector<std::string> events;
+                for ( int index = 0; index < data.records.size(); index++ )
+                {
+                    Database::Record &record = data.records[index];
+                    events.push_back( record["EventName"] );
+                }
+
+                return events;
+            }
+
+            std::vector<std::string> getAttendees( std::string eventName )
+            {
+                Database::Table data = execute( "SELECT * FROM Attendees WHERE EventName = '" + eventName + "'" );
+                std::vector<std::string> people;
+                for ( int index = 0; index < data.records.size(); index++ )
+                {
+                    Database::Record &record = data.records[index];
+                    people.push_back( record["PersonName"] );
+                }
+
+                return people;
             }
     };
 
