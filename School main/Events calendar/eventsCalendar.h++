@@ -16,11 +16,7 @@
     
     class EventsCalendar: public Database
     {
-        int nextEventId = 0;
-        int nextPersonId = 0;
-
         public:
-
             EventsCalendar( std::string file ): Database( file )
             {
                 execute( 

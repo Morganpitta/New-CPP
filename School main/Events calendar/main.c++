@@ -14,6 +14,8 @@ int main()
         std::cout << "--------------------------------------------------" << std::endl;
         std::cout << "1. add person\n2. add event\n3. add attendee to event\n4. view all people\n5. view all events\n6. view persons events\n7. view event attendees\n";
         std::getline( std::cin, input );
+        if ( input == "" )
+            break;
         std::cout << "--------------------------------------------------" << std::endl;
 
         switch( std::stoi(input) )
