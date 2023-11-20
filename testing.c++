@@ -4,7 +4,7 @@ int main()
 {
     Database database( "database.db" );
 
-    Database::Table data = database.execute( "SELECT * FROM sqlite_master WHERE type = 'table' AND tbl_name = 'COMPANY'" );
+    Database::QueryResult data = database.execute( "SELECT * FROM sqlite_master WHERE type = 'table' AND tbl_name = 'COMPANY'" );
 
     database.execute(
       " CREATE TABLE IF NOT EXISTS COMPANY("

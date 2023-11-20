@@ -75,7 +75,7 @@
 
             std::vector<std::string> getAllPeople()
             {
-                Database::Table data = execute( "SELECT * FROM People" );
+                Database::QueryResult data = execute( "SELECT * FROM People" );
                 std::vector<std::string> people;
                 for ( int index = 0; index < data.records.size(); index++ )
                 {
@@ -88,7 +88,7 @@
 
             std::vector<std::string> getAllEvents()
             {
-                Database::Table data = execute( "SELECT * FROM Events" );
+                Database::QueryResult data = execute( "SELECT * FROM Events" );
                 std::vector<std::string> events;
                 for ( int index = 0; index < data.records.size(); index++ )
                 {
@@ -101,7 +101,7 @@
 
             std::vector<std::string> getEventByPerson( std::string personName )
             {
-                Database::Table data = execute( "SELECT * FROM Attendees WHERE PersonName = '" + personName + "'" );
+                Database::QueryResult data = execute( "SELECT * FROM Attendees WHERE PersonName = '" + personName + "'" );
                 std::vector<std::string> events;
                 for ( int index = 0; index < data.records.size(); index++ )
                 {
@@ -114,7 +114,7 @@
 
             std::vector<std::string> getAttendees( std::string eventName )
             {
-                Database::Table data = execute( "SELECT * FROM Attendees WHERE EventName = '" + eventName + "'" );
+                Database::QueryResult data = execute( "SELECT * FROM Attendees WHERE EventName = '" + eventName + "'" );
                 std::vector<std::string> people;
                 for ( int index = 0; index < data.records.size(); index++ )
                 {

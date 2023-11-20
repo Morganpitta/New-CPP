@@ -5,17 +5,18 @@
     #include "assert.h++"
     #include <functional>
     #include <map>
+    #include <set>
 
     class Database
     {
         public:
             typedef std::map<std::string, std::string> Record;
             
-            class Table
+            class QueryResult
             {
                 public:
                     std::vector<Record> records;
-                    std::vector<std::string> attributes;
+                    std::set<std::string> attributes;
 
                     void clear()
                     {
@@ -28,7 +29,7 @@
             sqlite3* database;
             bool error = false;
             std::string errorMessage = "";
-            Table callbackValue;
+            QueryResult callbackValue;
 
             static int callbackWrapper(void *objPtr, int argc, char **argv, char **azColName) {
                 return ((Database *)objPtr)->callback(argc, argv, azColName);
@@ -40,6 +41,7 @@
                 for ( int index = 0; index < numberOfColumns; index++ )
                 {
                     record[columnNames[index]] = items[index] == NULL ? "NULL" : items[index];
+                    callbackValue.attributes.insert(columnNames[index]);
                 }
                 callbackValue.records.push_back( record );
 
@@ -61,7 +63,7 @@
                 }
             }
 
-            Table execute( std::string sql )
+            QueryResult execute( std::string sql )
             {
                 char *errorMessage = 0;
                 callbackValue.clear();
