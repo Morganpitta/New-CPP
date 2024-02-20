@@ -6,6 +6,7 @@
     #include <vector>
     #include <unistd.h>
     #include <filesystem>
+    #include <fstream>
     #include "assert.h++"
     #if defined( OS_Windows )
         #include <windows.h>
