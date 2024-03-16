@@ -1,15 +1,11 @@
-#include <deck.h++>
+#include "blackJack.h++"
 #include <iostream>
 
 int main()
 {
-    Deck deck;
+    BlackJack game(2);
 
-    std::cout << std::string( deck ) << std::endl;
-
-    deck.shuffle();
-
-    std::cout << std::string( deck ) << std::endl;
+    game.play();
 
     return 0;
 }
