@@ -97,8 +97,8 @@
                     {
                         float angle = angleOf( relativePosition );
 
-                        if ( normaliseAngle( angle - getRotation() ) <= 90 || 
-                             normaliseAngle( angle - getRotation() ) >= 270
+                        if ( normaliseAngle( angle - getRotation() ) <= 45 || 
+                             normaliseAngle( angle - getRotation() ) >= 315
                         )
                         {
                             resultant += get2DUnitVector( angle ) * float(pheromone.getStrength()) * ( shouldRepel( pheromone.getType() ) ? -1.f : 1.f );

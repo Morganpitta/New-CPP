@@ -16,7 +16,7 @@ int main()
     std::vector<Ant> ants;
     std::vector<Pheromone> pheromones;
 
-    for ( int index = 0; index < 100; index++ )
+    for ( int index = 0; index < 50; index++ )
     {
         ants.push_back( Ant( {400,400} ) );
     }
@@ -46,7 +46,7 @@ int main()
         std::for_each( ants.begin(), ants.end(), [&window,&pheromones]( Ant &ant ){
             ant.update( pheromones );
             window.draw( ant );
-        }); 
+        });
 
         std::for_each( pheromones.begin(), pheromones.end(), [&window]( Pheromone &pheromone ){
             pheromone.update();
