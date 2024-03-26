@@ -69,23 +69,23 @@ class CollisionRect
             return std::make_pair(*std::min_element(dots.begin(),dots.end()), *std::max_element(dots.begin(),dots.end()));
         }
 
-        static std::pair<bool,float> isCollidingOnVector( const PolygonPoints &rect1, const PolygonPoints &rect2, sf::Vector2f projectionVector )
+        static bool overlappingOnVector( const PolygonPoints &rect1, const PolygonPoints &rect2, sf::Vector2f projectionVector )
         {
             std::pair<float,float> rect1MinAndMax = minAndMaxPoints(rect1, projectionVector);
             std::pair<float,float> rect2MinAndMax = minAndMaxPoints(rect2, projectionVector);
 
-            if ( rect1MinAndMax.first < rect2MinAndMax.first && rect2MinAndMax.first < rect1MinAndMax.second )
+            if ( rect1MinAndMax.first <= rect2MinAndMax.first && rect2MinAndMax.first <= rect1MinAndMax.second )
             {
-                return std::make_pair( true, absMin( rect1MinAndMax.first - rect2MinAndMax.first, rect2MinAndMax.first - rect1MinAndMax.second ) );
+                return true;
             }
-            else if ( rect2MinAndMax.first < rect1MinAndMax.first && rect1MinAndMax.first < rect2MinAndMax.second )
+            else if ( rect2MinAndMax.first <= rect1MinAndMax.first && rect1MinAndMax.first <= rect2MinAndMax.second )
             {
-                return std::make_pair( true, absMin( rect2MinAndMax.first - rect1MinAndMax.first, rect1MinAndMax.first - rect2MinAndMax.second ) );
+                return true;
             }
-            return std::make_pair( false, 0 );
+            return false;
         }
 
-        std::pair<bool,sf::Vector2f> isColliding( const CollisionRect &rect ) const
+        bool isColliding( const CollisionRect &rect ) const
         {
             PolygonPoints selfPoints = toPoints();
             PolygonPoints rectPoints = rect.toPoints();
@@ -97,30 +97,16 @@ class CollisionRect
                 { -(rectPoints[1].y - rectPoints[2].y), rectPoints[1].x - rectPoints[2].x }
             };
 
-            std::pair<float,sf::Vector2f> smallestDistance = std::make_pair(0,sf::Vector2f(0,0));
-
             for ( sf::Vector2f normal: normals )
             {
-                std::pair<bool, float> colliding = isCollidingOnVector(selfPoints,rectPoints,normal);
-                if ( colliding.first )
+                bool overlapping = overlappingOnVector(selfPoints,rectPoints,normal);
+                if ( !overlapping )
                 {
-                    colliding.second /= length( normal );
-                    if ( abs(smallestDistance.first) > abs(colliding.second) || smallestDistance.first == 0 )
-                    {
-                        normal /= length( normal );
-                        smallestDistance = std::make_pair(colliding.second,normal);
-                    }
-                }
-                else
-                {
-                    return std::make_pair(false,sf::Vector2f(0,0));
+                    return false;
                 }
             }
 
-            // Minimum Translation Vector
-            sf::Vector2f MTV = smallestDistance.first * smallestDistance.second;
-
-            return std::make_pair(true,MTV);
+            return true;
         }
 
         void draw( sf::RenderWindow &window )
@@ -141,7 +127,7 @@ int main()
     sf::RenderWindow window( sf::VideoMode({800,800} ), "Rects" );
 
     CollisionRect rect1( {100,100}, {100,100}, 0 );
-    CollisionRect rect2( {300,100}, {100,100}, 0 );
+    CollisionRect rect2( {300,100}, {400,400}, 0 );
 
     while ( window.isOpen() )
     {
@@ -162,21 +148,11 @@ int main()
 
         rect1.center = sf::Vector2f( sf::Mouse::getPosition(window) );
 
-        std::pair<bool, sf::Vector2f> colliding = rect1.isColliding(rect2);
+        bool colliding = rect1.isColliding(rect2);
 
-        window.clear( !colliding.first? sf::Color::White : sf::Color::Green );
+        window.clear( !colliding? sf::Color::White : sf::Color::Green );
 
-        if ( true )
-        {
-            sf::VertexArray line(sf::PrimitiveType::Lines,2);
-            line[0].position = {100,100};
-            line[0].color = sf::Color::Black;
-            line[1].position = sf::Vector2f(100,100) + colliding.second;
-            line[1].color = sf::Color::Black;
-            window.draw(line);
-        }
-
-        rect2.rotation += 0.01;
+        //rect2.rotation += 0.01;
 
         rect1.draw(window);
         rect2.draw(window);
