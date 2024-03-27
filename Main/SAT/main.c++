@@ -35,9 +35,25 @@ float length( sf::Vector2f vector )
     return sqrt( lengthSquared(vector) );
 }
 
+bool invalidNormal( sf::Vector2f vector )
+{
+    return vector.x + 0.0f == 0.0f && vector.y + 0.0f == 0.0f;
+}
+
 class CollisionRect
 {
     typedef std::vector<sf::Vector2f> PolygonPoints;
+    struct Projection
+    {
+        float min;
+        float max;
+
+        bool contains( Projection projection2 )
+        {
+            return min <= projection2.min && projection2.min <= max ||
+                   min <= projection2.max && projection2.max <= max; 
+        }
+    };
 
     public:
         sf::Vector2f center;
@@ -48,7 +64,7 @@ class CollisionRect
         {
         }
 
-        PolygonPoints toPoints() const
+        PolygonPoints getPoints() const
         {
             return {
                 center + rotatePosition({-dimensions.x/2.f,dimensions.y/2.f},rotation),
@@ -58,7 +74,7 @@ class CollisionRect
             };
         }
 
-        static std::pair<float,float> minAndMaxPoints( const PolygonPoints &rect, sf::Vector2f projectionVector )
+        static Projection getProjection( const PolygonPoints &rect, sf::Vector2f projectionVector )
         {
             std::vector<float> dots;
             for ( int index = 0; index < rect.size(); index++ )
@@ -66,50 +82,66 @@ class CollisionRect
                 dots.push_back(vectorDot( rect[index], projectionVector ));
             }
 
-            return std::make_pair(*std::min_element(dots.begin(),dots.end()), *std::max_element(dots.begin(),dots.end()));
+            return {*std::min_element(dots.begin(),dots.end()), *std::max_element(dots.begin(),dots.end())};
         }
 
-        static std::pair<bool,float> isCollidingOnVector( const PolygonPoints &rect1, const PolygonPoints &rect2, sf::Vector2f projectionVector )
+        static float overlap( Projection projection1, Projection projection2 )
         {
-            std::pair<float,float> rect1MinAndMax = minAndMaxPoints(rect1, projectionVector);
-            std::pair<float,float> rect2MinAndMax = minAndMaxPoints(rect2, projectionVector);
+            if ( projection1.contains( projection2 ) || projection2.contains(projection1) )
+            {
+                float start = std::max(projection1.min,projection2.min);
+                float end = std::min(projection1.max,projection2.max);
+                bool invert = projection1.min > projection2.min && projection1.max > projection2.max;
+                return ( end - start ) * (invert?-1:1);
+            }
 
-            if ( rect1MinAndMax.first <= rect2MinAndMax.first && rect2MinAndMax.first <= rect1MinAndMax.second )
-            {
-                return std::make_pair( true, absMin( rect1MinAndMax.first - rect2MinAndMax.first, rect1MinAndMax.second - rect2MinAndMax.first ) );
-            }
-            else if ( rect2MinAndMax.first <= rect1MinAndMax.first && rect1MinAndMax.first <= rect2MinAndMax.second )
-            {
-                return std::make_pair( true, absMin( rect1MinAndMax.first - rect2MinAndMax.first, rect1MinAndMax.first - rect2MinAndMax.second ) );
-            }
-            return std::make_pair( false, 0 );
+            return 0;
         }
 
-        std::pair<bool,sf::Vector2f> isColliding( const CollisionRect &rect ) const
+        static float overlapOnVector( const PolygonPoints &rect1, const PolygonPoints &rect2, sf::Vector2f projectionVector )
         {
-            PolygonPoints selfPoints = toPoints();
-            PolygonPoints rectPoints = rect.toPoints();
+            Projection rect1Projection = getProjection(rect1, projectionVector);
+            Projection rect2Projection = getProjection(rect2, projectionVector);
+
+            return overlap(rect1Projection, rect2Projection);
+        }
+
+        static std::pair<bool,sf::Vector2f> isColliding( const CollisionRect &rect1, const CollisionRect &rect2 )
+        {
+            PolygonPoints rect1Points = rect1.getPoints();
+            PolygonPoints rect2Points = rect2.getPoints();
 
             std::vector<sf::Vector2f> normals = { 
-                { -(selfPoints[0].y - selfPoints[1].y), selfPoints[0].x - selfPoints[1].x },
-                { -(selfPoints[1].y - selfPoints[2].y), selfPoints[1].x - selfPoints[2].x },
-                { -(rectPoints[0].y - rectPoints[1].y), rectPoints[0].x - rectPoints[1].x },
-                { -(rectPoints[1].y - rectPoints[2].y), rectPoints[1].x - rectPoints[2].x }
+                { -(rect1Points[0].y - rect1Points[1].y), rect1Points[0].x - rect1Points[1].x },
+                { -(rect1Points[1].y - rect1Points[2].y), rect1Points[1].x - rect1Points[2].x },
+                { -(rect2Points[0].y - rect2Points[1].y), rect2Points[0].x - rect2Points[1].x },
+                { -(rect2Points[1].y - rect2Points[2].y), rect2Points[1].x - rect2Points[2].x }
             };
 
+            normals.erase( std::remove_if(
+                normals.begin(),
+                normals.end(), 
+                invalidNormal
+            ), normals.end() );
+
+            if ( normals.size() == 0 )
+                return std::make_pair(false,sf::Vector2f(0,0));
+
             std::pair<float,sf::Vector2f> smallestDistance = std::make_pair(0,sf::Vector2f(0,0));
+            std::vector<std::pair<float,sf::Vector2f>> distances;
 
             for ( sf::Vector2f normal: normals )
             {
-                std::pair<bool, float> colliding = isCollidingOnVector(selfPoints,rectPoints,normal);
-                if ( colliding.first )
+                float overlap = overlapOnVector(rect1Points,rect2Points,normal);
+                if ( overlap != 0 )
                 {
-                    colliding.second /= length( normal );
-                    if ( abs(smallestDistance.first) > abs(colliding.second) || smallestDistance.first == 0 )
+                    overlap /= length( normal );
+                    if ( abs(smallestDistance.first) > abs(overlap) || smallestDistance.first == 0 )
                     {
                         normal /= length( normal );
-                        smallestDistance = std::make_pair(colliding.second,normal);
+                        smallestDistance = std::make_pair(overlap,normal);
                     }
+                    distances.push_back(std::make_pair(overlap,normal));
                 }
                 else
                 {
@@ -162,7 +194,8 @@ int main()
 
         rect1.center = sf::Vector2f( sf::Mouse::getPosition(window) );
 
-        std::pair<bool, sf::Vector2f> colliding = rect1.isColliding(rect2);
+        CollisionRect::isColliding(rect1,rect2);
+        std::pair<bool, sf::Vector2f> colliding = CollisionRect::isColliding(rect1,rect2);
 
         if ( colliding.first )
         {
