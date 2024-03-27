@@ -74,13 +74,13 @@ class CollisionRect
             std::pair<float,float> rect1MinAndMax = minAndMaxPoints(rect1, projectionVector);
             std::pair<float,float> rect2MinAndMax = minAndMaxPoints(rect2, projectionVector);
 
-            if ( rect1MinAndMax.first < rect2MinAndMax.first && rect2MinAndMax.first < rect1MinAndMax.second )
+            if ( rect1MinAndMax.first <= rect2MinAndMax.first && rect2MinAndMax.first <= rect1MinAndMax.second )
             {
-                return std::make_pair( true, absMin( rect1MinAndMax.first - rect2MinAndMax.first, rect2MinAndMax.first - rect1MinAndMax.second ) );
+                return std::make_pair( true, absMin( rect1MinAndMax.first - rect2MinAndMax.first, rect1MinAndMax.second - rect2MinAndMax.first ) );
             }
-            else if ( rect2MinAndMax.first < rect1MinAndMax.first && rect1MinAndMax.first < rect2MinAndMax.second )
+            else if ( rect2MinAndMax.first <= rect1MinAndMax.first && rect1MinAndMax.first <= rect2MinAndMax.second )
             {
-                return std::make_pair( true, absMin( rect2MinAndMax.first - rect1MinAndMax.first, rect1MinAndMax.first - rect2MinAndMax.second ) );
+                return std::make_pair( true, absMin( rect1MinAndMax.first - rect2MinAndMax.first, rect1MinAndMax.first - rect2MinAndMax.second ) );
             }
             return std::make_pair( false, 0 );
         }
@@ -141,7 +141,7 @@ int main()
     sf::RenderWindow window( sf::VideoMode({800,800} ), "Rects" );
 
     CollisionRect rect1( {100,100}, {100,100}, 0 );
-    CollisionRect rect2( {300,100}, {100,100}, 0 );
+    CollisionRect rect2( {300,300}, {100,100}, 0 );
 
     while ( window.isOpen() )
     {
@@ -164,19 +164,15 @@ int main()
 
         std::pair<bool, sf::Vector2f> colliding = rect1.isColliding(rect2);
 
-        window.clear( !colliding.first? sf::Color::White : sf::Color::Green );
-
-        if ( true )
+        if ( colliding.first )
         {
-            sf::VertexArray line(sf::PrimitiveType::Lines,2);
-            line[0].position = {100,100};
-            line[0].color = sf::Color::Black;
-            line[1].position = sf::Vector2f(100,100) + colliding.second;
-            line[1].color = sf::Color::Black;
-            window.draw(line);
+            rect1.center -= colliding.second/2.f;
+            rect2.center += colliding.second/2.f;
         }
 
-        rect2.rotation += 0.01;
+        window.clear( sf::Color::Green );
+
+        //rect2.rotation += 0.01;
 
         rect1.draw(window);
         rect2.draw(window);
