@@ -91,8 +91,7 @@ class CollisionRect
             {
                 float start = std::max(projection1.min,projection2.min);
                 float end = std::min(projection1.max,projection2.max);
-                bool invert = projection1.min > projection2.min && projection1.max > projection2.max;
-                return ( end - start ) * (invert?-1:1);
+                return ( end - start );
             }
 
             return 0;
@@ -151,6 +150,10 @@ class CollisionRect
 
             // Minimum Translation Vector
             sf::Vector2f MTV = smallestDistance.first * smallestDistance.second;
+            
+            bool invertDirection = vectorDot(rect2.center - rect1.center, smallestDistance.second) < 0;
+            if ( invertDirection )
+                MTV *= -1.f;
 
             return std::make_pair(true,MTV);
         }
@@ -172,8 +175,11 @@ int main()
 {
     sf::RenderWindow window( sf::VideoMode({800,800} ), "Rects" );
 
-    CollisionRect rect1( {100,100}, {100,100}, 0 );
-    CollisionRect rect2( {300,300}, {100,100}, 0 );
+    std::vector<CollisionRect> rects;
+    for ( int index = 0; index < 10; index++ )
+    {
+        rects.push_back( CollisionRect( {10*index,100}, {100,100}, 0 ) );
+    }
 
     while ( window.isOpen() )
     {
@@ -187,28 +193,37 @@ int main()
                     break;
 
                 case sf::Event::MouseWheelScrolled:
-                    rect1.rotation += event.mouseWheelScroll.delta / 10.f;
+                    rects[0].rotation += event.mouseWheelScroll.delta / 10.f;
                     break;
             }
         }
 
-        rect1.center = sf::Vector2f( sf::Mouse::getPosition(window) );
+        rects[0].center = sf::Vector2f( sf::Mouse::getPosition(window) );
 
-        CollisionRect::isColliding(rect1,rect2);
-        std::pair<bool, sf::Vector2f> colliding = CollisionRect::isColliding(rect1,rect2);
-
-        if ( colliding.first )
+        for ( auto rect1 = rects.begin(); rect1 != rects.end(); rect1++ )
         {
-            rect1.center -= colliding.second/2.f;
-            rect2.center += colliding.second/2.f;
+            auto rect2 = rect1;
+            for ( rect2++; rect2 != rects.end(); rect2++ )
+            {
+                CollisionRect::isColliding(*rect1,*rect2);
+                std::pair<bool, sf::Vector2f> colliding = CollisionRect::isColliding(*rect1,*rect2);
+
+                if ( colliding.first )
+                {
+                    (*rect1).center -= colliding.second/2.f;
+                    (*rect2).center += colliding.second/2.f;
+                }
+            }
         }
 
         window.clear( sf::Color::Green );
 
         //rect2.rotation += 0.01;
 
-        rect1.draw(window);
-        rect2.draw(window);
+        for ( CollisionRect &rect: rects )
+        {
+            rect.draw(window);
+        }
 
         window.display();
     }
