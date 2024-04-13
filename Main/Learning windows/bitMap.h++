@@ -66,9 +66,9 @@
     std::set<RGBQUAD> getColoursInArea( std::vector<RGBQUAD> &pixels, int screenWidth, int screenHeight, int xIndex, int yIndex )
     {
         std::set<RGBQUAD> colours;
-        for ( int xOffset = -2; xOffset <= 2; xOffset++ )
+        for ( int xOffset = -5; xOffset <= 5; xOffset++ )
         {
-            for ( int yOffset = -2; yOffset <= 2; yOffset++ )
+            for ( int yOffset = -5; yOffset <= 5; yOffset++ )
             {
                 RGBQUAD colour = getBufferValueAt( pixels, screenWidth, screenHeight, xIndex+xOffset, yIndex+yOffset );
                 colours.insert( colour );

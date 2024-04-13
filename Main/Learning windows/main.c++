@@ -18,10 +18,10 @@ int main()
         if ( !(GetKeyState('Z') & 0x8000) ) { GetCursorPos(&endPoint); break; }
     }
 
-    std::cout << "doing things" << std::endl;
-
     int gridWidth = 10; int gridHeight = 8;
-    TileGrid tileGrid = readScreen( context, startPoint, endPoint, gridWidth, gridHeight );
+    int screenWidth = ( endPoint.x - startPoint.x ); int screenHeight = ( endPoint.y - startPoint.y ); 
+
+    TileGrid tileGrid = readScreen( context, startPoint, screenWidth, screenHeight, gridWidth, gridHeight );
 
     for ( int yIndex = 0; yIndex < gridHeight; yIndex++ )
     {
@@ -32,6 +32,21 @@ int main()
             std::cout << string;
         }
         std::cout << std::endl;
+    }
+
+    std::vector<POINT> points = getBestMove( tileGrid, gridWidth, gridHeight );
+    
+    float tileWidth = screenWidth / gridWidth;
+    float tileHeight = screenHeight / gridHeight;
+
+    while ( true )
+    {
+        for ( POINT point: points )
+        {
+            POINT screenPosition = { startPoint.x + (point.x+0.5f)*tileWidth, startPoint.y + (point.y+0.5f)*tileHeight };
+
+            Ellipse( context, screenPosition.x - 5, screenPosition.y - 5, screenPosition.x + 5, screenPosition.y + 5 );
+        }
     }
 
     return 0;
