@@ -62,6 +62,11 @@
         return std::tie(move1.position.x, move1.position.y) < std::tie(move2.position.x, move2.position.y);
     }
 
+    bool operator==( const Move& move1, const Move& move2 )
+    {
+        return std::tie(move1.position.x, move1.position.y) == std::tie(move2.position.x, move2.position.y);
+    }
+
     void playMove( Move move )
     {
         std::vector<INPUT> inputs = {};

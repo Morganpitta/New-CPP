@@ -1,5 +1,6 @@
 #include "tileGrid.h++"
 #include <iostream>
+#include <algorithm>
 
 int main()
 {
@@ -38,51 +39,60 @@ int main()
     //         }
     //     }
     // }
-    
-    Sleep(4000);
-
-    while( true )
+    while ( true ) 
     {
-        if ( GetKeyState('P') & 0x8000 ) break;
-
-        TileGrid tileGrid = readScreen( context, startPoint, screenWidth, screenHeight, gridWidth, gridHeight );
-
-        for ( int yIndex = 0; yIndex < gridHeight; yIndex++ )
-        {
-            for ( int xIndex = 0; xIndex < gridWidth; xIndex++ )
-            {
-                std::string string = " " + std::to_string( int(tileGrid[xIndex][yIndex]) ) + " ";
-                if ( string.size() == 3 ) string += " ";
-                std::cout << string;
-            }
-            std::cout << std::endl;
-        }
-        std::cout << std::endl;
-
-        std::set<Move> moves;
-
         while ( true )
         {
-            std::set<Move> newMoves = getBestMoves( tileGrid, gridWidth, gridHeight );
+            if ( GetKeyState('S') & 0x8000 ) break;
+        }
 
-            if ( newMoves.size() <= moves.size() )
+        while( true )
+        {
+            if ( GetKeyState('E') & 0x8000 ) break;
+
+            TileGrid tileGrid = readScreen( context, startPoint, screenWidth, screenHeight, gridWidth, gridHeight );
+
+            for ( int yIndex = 0; yIndex < gridHeight; yIndex++ )
+            {
+                for ( int xIndex = 0; xIndex < gridWidth; xIndex++ )
+                {
+                    std::string string = " " + std::to_string( int(tileGrid[xIndex][yIndex]) ) + " ";
+                    if ( string.size() == 3 ) string += " ";
+                    std::cout << string;
+                }
+                std::cout << std::endl;
+            }
+            std::cout << std::endl;
+
+            std::set<Move> moves;
+
+            while ( true )
+            {
+                std::set<Move> tempMoves = getBestMoves( tileGrid, gridWidth, gridHeight );
+                std::set<Move> newMoves;
+
+                std::set_difference( tempMoves.begin(), tempMoves.end(), moves.begin(), moves.end(), std::inserter(newMoves, newMoves.end()) );
+
+                if ( newMoves.size() == 0 )
+                    break;
+
+                moves.insert(newMoves.begin(), newMoves.end());
+            }
+            
+            if ( moves.size() == 0 )
                 break;
 
-            moves.insert(newMoves.begin(), newMoves.end());
+            for ( Move move: moves )
+            {
+                POINT screenPosition = { startPoint.x + LONG((move.position.x+0.5f)*tileWidth), startPoint.y + LONG((move.position.y+0.5f)*tileHeight) };
+                move.position = screenPosition;
+
+                playMove(move);
+            }
+
+            Sleep(750);
         }
-        
-        if ( moves.size() == 0 )
-            break;
-
-        for ( Move move: moves )
-        {
-            POINT screenPosition = { startPoint.x + LONG((move.position.x+0.5f)*tileWidth), startPoint.y + LONG((move.position.y+0.5f)*tileHeight) };
-            move.position = screenPosition;
-
-            playMove(move);
-        }
-
-        Sleep(500);
+        if ( GetKeyState('E') & 0x8000 ) break;
     }
 
     return 0;
