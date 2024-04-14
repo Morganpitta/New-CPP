@@ -20,14 +20,30 @@ int main()
 
     // EASY -> 10, 8
     // MEDIUM -> 18, 14
-    // HARD -> 
+    // HARD -> 24, 20
     int gridWidth = 18; int gridHeight = 14;
     int screenWidth = ( endPoint.x - startPoint.x ); int screenHeight = ( endPoint.y - startPoint.y ); 
     float tileWidth = float(screenWidth) / gridWidth; float tileHeight = float(screenHeight) / gridHeight;
 
+    // while (true)
+    // {
+    //     if ( GetKeyState('S') & 0x8000 ) break;
+    //     for ( int yIndex = 0; yIndex < gridHeight; yIndex++ )
+    //     {
+    //         for ( int xIndex = 0; xIndex < gridWidth; xIndex++ )
+    //         {
+    //             POINT screenPosition = { startPoint.x + LONG((xIndex+0.5f)*tileWidth), startPoint.y + LONG((yIndex+0.5f)*tileHeight) };
+
+    //             Ellipse( context, screenPosition.x - tileWidth/3, screenPosition.y - tileHeight/3, screenPosition.x + tileWidth/3, screenPosition.y + tileHeight/3 );
+    //         }
+    //     }
+    // }
+    
+    Sleep(4000);
+
     while( true )
     {
-        if ( GetKeyState('K') & 0x8000 ) break;
+        if ( GetKeyState('P') & 0x8000 ) break;
 
         TileGrid tileGrid = readScreen( context, startPoint, screenWidth, screenHeight, gridWidth, gridHeight );
 
@@ -43,7 +59,17 @@ int main()
         }
         std::cout << std::endl;
 
-        std::set<Move> moves = getBestMoves( tileGrid, gridWidth, gridHeight );
+        std::set<Move> moves;
+
+        while ( true )
+        {
+            std::set<Move> newMoves = getBestMoves( tileGrid, gridWidth, gridHeight );
+
+            if ( newMoves.size() <= moves.size() )
+                break;
+
+            moves.insert(newMoves.begin(), newMoves.end());
+        }
         
         if ( moves.size() == 0 )
             break;
@@ -56,7 +82,7 @@ int main()
             playMove(move);
         }
 
-        Sleep(4000);
+        Sleep(500);
     }
 
     return 0;

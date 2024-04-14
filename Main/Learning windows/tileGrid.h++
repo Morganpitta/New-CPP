@@ -24,7 +24,7 @@
         {
             for ( int yIndex = 0; yIndex < gridHeight; yIndex++ )
             {
-                std::set<RGBQUAD> colours = getColoursInArea( pixels, width, height, (xIndex+0.5f)*tileWidth, (yIndex+0.5f)*tileHeight, tileWidth/2, tileHeight/2 );
+                std::set<RGBQUAD> colours = getColoursInArea( pixels, width, height, (xIndex+0.5f)*tileWidth, (yIndex+0.5f)*tileHeight, (2*tileWidth)/3, (2*tileHeight)/3 );
                 grid[xIndex][yIndex] = getMostLikelyTile( colours );
             }
         }
@@ -111,6 +111,7 @@
                         for ( POINT position: coveredTiles )
                         {
                             moves.insert( {position, {MOUSEEVENTF_RIGHTDOWN,MOUSEEVENTF_RIGHTUP} } );
+                            grid[position.x][position.y] = FlagTile;
                         }
                     }
                 }
