@@ -3,18 +3,22 @@
 
     #include <windows.h>
     #include <vector>
+    #include <cmath>
 
     typedef HWND WindowHandleId;
     typedef HDC DeviceContextHandleId;
     typedef HBITMAP BitMapHandleId;
 
     // https://stackoverflow.com/questions/26233848/c-read-pixels-with-getdibits 
+    // https://stackoverflow.com/questions/10515646/get-pixel-color-fastest-way
+    // https://stackoverflow.com/questions/8657155/getting-bitmap-pixel-values-using-the-windows-getdibits-function
     BitMapHandleId getScreenCaptureBitmap( DeviceContextHandleId context, POINT topLeft, int captureWidth, int captureHeight )
     {
         // Create compatible context, create a compatible bitmap and copy the screen using BitBlt()
         DeviceContextHandleId captureContext  = CreateCompatibleDC(context);
         BitMapHandleId bitMap = CreateCompatibleBitmap(context, captureWidth, captureHeight);
         HGDIOBJ oldBitMap = SelectObject(captureContext, bitMap);
+        // https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-bitblt
         BitBlt( captureContext, 0, 0, captureWidth, captureHeight, context, topLeft.x, topLeft.y, SRCCOPY | CAPTUREBLT ); 
 
         // Reselect old bitmap. If we dont do this, when we delete DC it will delete the one we want and leak the old one
@@ -31,6 +35,8 @@
         BITMAPINFO bitMapInfo = {0};
         // It needs to know the size of the header because it takes a pointer reference.
         bitMapInfo.bmiHeader.biSize = sizeof(bitMapInfo.bmiHeader);
+
+        // https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-getdibits
 
         // Passed in NULL for pixelBuffer, so the function will populate bitMapInfo.
         if ( !GetDIBits( context, screenCaptureBitMap, 0, 0, NULL, &bitMapInfo, DIB_RGB_COLORS ) )
@@ -63,12 +69,12 @@
         return std::tie(rgb1.rgbRed,rgb1.rgbGreen,rgb1.rgbBlue) < std::tie(rgb2.rgbRed,rgb2.rgbGreen,rgb2.rgbBlue);
     }
 
-    std::set<RGBQUAD> getColoursInArea( std::vector<RGBQUAD> &pixels, int screenWidth, int screenHeight, int xIndex, int yIndex )
+    std::set<RGBQUAD> getColoursInArea( std::vector<RGBQUAD> &pixels, int screenWidth, int screenHeight, int xIndex, int yIndex, int areaWidth, int areaHeight )
     {
         std::set<RGBQUAD> colours;
-        for ( int xOffset = -5; xOffset <= 5; xOffset++ )
+        for ( int xOffset = -std::floor(areaWidth/2); xOffset <= std::floor(areaWidth/2); xOffset++ )
         {
-            for ( int yOffset = -5; yOffset <= 5; yOffset++ )
+            for ( int yOffset = -std::floor(areaHeight/2); yOffset <= std::floor(areaHeight/2); yOffset++ )
             {
                 RGBQUAD colour = getBufferValueAt( pixels, screenWidth, screenHeight, xIndex+xOffset, yIndex+yOffset );
                 colours.insert( colour );

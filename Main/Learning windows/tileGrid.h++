@@ -13,8 +13,8 @@
         RGBQUAD currentTileColour;
         TileGrid grid; grid.resize( gridWidth, std::vector<Tile>(gridHeight) );
 
-        float tileWidth = width / gridWidth;
-        float tileHeight = height / gridHeight;
+        float tileWidth = float(width) / gridWidth;
+        float tileHeight = float(height) / gridHeight;
 
         std::vector<RGBQUAD> pixels;
 
@@ -24,7 +24,7 @@
         {
             for ( int yIndex = 0; yIndex < gridHeight; yIndex++ )
             {
-                std::set<RGBQUAD> colours = getColoursInArea( pixels, width, height, (xIndex+0.5f)*tileWidth, (yIndex+0.5f)*tileHeight );
+                std::set<RGBQUAD> colours = getColoursInArea( pixels, width, height, (xIndex+0.5f)*tileWidth, (yIndex+0.5f)*tileHeight, tileWidth/2, tileHeight/2 );
                 grid[xIndex][yIndex] = getMostLikelyTile( colours );
             }
         }
@@ -32,31 +32,62 @@
         return grid;
     }
 
-    int getNumberOfKnownAdjacentMines( TileGrid &grid, int gridWidth, int gridHeight, POINT position )
+    std::vector<POINT> getAdjacentMatchingTiles( TileGrid &grid, int gridWidth, int gridHeight, POINT position, Tile tileType )
     {
-        std::array<POINT, 8> offsets = {{ {1,1}, {1,0}, {1,-1}, {0,1}, {0,-1}, {-1,1}, {-1,0}, {-1,-1} }};
+        const std::array<POINT, 8> offsets = {{ {1,1}, {1,0}, {1,-1}, {0,1}, {0,-1}, {-1,1}, {-1,0}, {-1,-1} }};
         
-        int mines = 0;
+        std::vector<POINT> mines = {};
         for ( POINT offset: offsets )
         {
             POINT tilePosition = {position.x+offset.x,position.y+offset.y};
-            if ( tilePosition.x < 0 || tilePosition.x > gridWidth ||
-                 tilePosition.y < 0 || tilePosition.y > gridWidth )
+            if ( tilePosition.x < 0 || tilePosition.x >= gridWidth ||
+                 tilePosition.y < 0 || tilePosition.y >= gridWidth )
                 continue;
             
-            if ( grid[tilePosition.x][tilePosition.y] == FlagTile )
-                mines++;
+            if ( grid[tilePosition.x][tilePosition.y] == tileType )
+                mines.push_back( tilePosition );
         }
 
         return mines;
     }
 
-    std::vector<POINT> getBestMove( TileGrid &grid, int gridWidth, int gridHeight )
+    struct Move
+    {
+        POINT position;
+        std::vector<DWORD> flags;
+    };
+
+    bool operator<( const Move& move1, const Move& move2 )
+    {
+        return std::tie(move1.position.x, move1.position.y) < std::tie(move2.position.x, move2.position.y);
+    }
+
+    void playMove( Move move )
+    {
+        std::vector<INPUT> inputs = {};
+        POINT originalMousePosition; GetCursorPos( &originalMousePosition );
+
+        SetCursorPos( move.position.x, move.position.y );
+
+        for ( DWORD flag: move.flags )
+        {
+            INPUT input = {0};
+            input.type = INPUT_MOUSE;
+            input.mi.dwFlags = flag;
+            inputs.push_back(input);
+        }
+
+        SendInput( inputs.size(), &inputs[0], sizeof(INPUT) );
+
+        SetCursorPos( originalMousePosition.x, originalMousePosition.y );
+    }
+
+    std::set<Move> getBestMoves( TileGrid &grid, int gridWidth, int gridHeight )
     {
         const int unknownProbability = -1;
         std::vector<std::vector<int>> probabilities; probabilities.resize( gridWidth, std::vector<int>(gridHeight, unknownProbability ) );
 
-        std::vector<POINT> points;
+        std::set<Move> moves;
         for ( int xIndex = 0; xIndex < gridWidth; xIndex++ )
         {
             for ( int yIndex = 0; yIndex < gridHeight; yIndex++ )
@@ -64,16 +95,29 @@
                 Tile tileType = grid[xIndex][yIndex];
                 if ( isNumberTile(tileType) || tileType == ClearTile )
                 {
-                    int knownMines = getNumberOfKnownAdjacentMines( grid, gridWidth, gridHeight, {xIndex, yIndex} );
-                    if ( knownMines >= int(tileType) )
+                    std::vector<POINT> knownMines = getAdjacentMatchingTiles( grid, gridWidth, gridHeight, {xIndex, yIndex}, FlagTile );
+                    std::vector<POINT> coveredTiles = getAdjacentMatchingTiles( grid, gridWidth, gridHeight, {xIndex, yIndex}, CoveredTile );
+                    
+                    if ( knownMines.size() >= int(tileType) )
                     {
-                        points.push_back( {xIndex,yIndex} );
+                        for ( POINT position: coveredTiles )
+                        {
+                            moves.insert( {position, {MOUSEEVENTF_LEFTDOWN,MOUSEEVENTF_LEFTUP} } );
+                        }
+                    }
+
+                    if ( coveredTiles.size() == (int(tileType) - knownMines.size() ) )
+                    {
+                        for ( POINT position: coveredTiles )
+                        {
+                            moves.insert( {position, {MOUSEEVENTF_RIGHTDOWN,MOUSEEVENTF_RIGHTUP} } );
+                        }
                     }
                 }
             }
         }
 
-        return points;
+        return moves;
     }
 
 #endif /* TILE_GRID_HPP */

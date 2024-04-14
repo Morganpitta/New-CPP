@@ -22,6 +22,7 @@
         NumberOfTiles
     };
 
+    // In the form BGRA
     const RGBQUAD Covered1Color = { 0x51, 0xd7, 0xaa, 0xff };
     const RGBQUAD Covered2Color = { 0x49, 0xd1, 0xa2, 0xff };
     const RGBQUAD Clear1Color   = { 0x99, 0xb8, 0xd7, 0xff };
@@ -30,6 +31,7 @@
     const RGBQUAD Tile2Color    = { 0x3c, 0x8e, 0x38, 0xff };
     const RGBQUAD Tile3Color    = { 0x30, 0x30, 0xd3, 0xff };
     const RGBQUAD Tile4Color    = { 0xa2, 0x1f, 0x7b, 0xff };
+    const RGBQUAD Tile5Color    = { 0x01, 0x8f, 0xff, 0xff };
     const RGBQUAD FlagColor     = { 0x07, 0x36, 0xf2, 0xff };
 
     // float colourDifference( RGBQUAD colour1, RGBQUAD colour2 )
@@ -58,6 +60,7 @@
         if ( colours.count( Tile2Color ) > 0 ) return TwoTile;
         if ( colours.count( Tile3Color ) > 0 ) return ThreeTile;
         if ( colours.count( Tile4Color ) > 0 ) return FourTile;
+        if ( colours.count( Tile5Color ) > 0 ) return FiveTile;
         if ( colours.count( FlagColor ) > 0 ) return FlagTile;
         if ( colours.count( Covered1Color ) > 0 || colours.count( Covered2Color ) > 0 ) return CoveredTile;
         if ( colours.count( Clear1Color ) > 0 || colours.count( Clear2Color ) > 0 ) return ClearTile;

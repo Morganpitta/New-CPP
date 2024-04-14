@@ -14,10 +14,10 @@ int main()
     {
         if ( GetKeyState('Z') & 0x8000 ) { 
             GetCursorPos(&point); 
-            COLORREF colour = GetPixel(context,point.x,point.y+30); 
+            COLORREF colour = GetPixel(context,point.x,point.y+60); 
             std::cout << std::hex << colour << std::endl; 
             SelectObject( context, GetStockObject(DC_BRUSH) );
-            SetDCBrushColor(context,colour); 
+            SetDCBrushColor(context,colour);
             Ellipse( context, 0, 0, 10, 10 );
         }
     }
