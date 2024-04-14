@@ -43,12 +43,12 @@ int main()
     {
         while ( true )
         {
-            if ( GetKeyState('S') & 0x8000 ) break;
+            if ( GetKeyState(VK_F2) & 0x8000 ) break;
         }
 
         while( true )
         {
-            if ( GetKeyState('E') & 0x8000 ) break;
+            if ( GetKeyState(VK_F4) & 0x8000 ) break;
 
             TileGrid tileGrid = readScreen( context, startPoint, screenWidth, screenHeight, gridWidth, gridHeight );
 
@@ -92,7 +92,7 @@ int main()
 
             Sleep(750);
         }
-        if ( GetKeyState('E') & 0x8000 ) break;
+        if ( GetKeyState(VK_F4) & 0x8000 ) break;
     }
 
     return 0;
