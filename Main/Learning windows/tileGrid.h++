@@ -90,7 +90,7 @@
     std::set<Move> getBestMoves( TileGrid &grid, int gridWidth, int gridHeight )
     {
         const int unknownProbability = -1;
-        std::vector<std::vector<int>> probabilities; probabilities.resize( gridWidth, std::vector<int>(gridHeight, unknownProbability ) );
+        std::vector<std::vector<int>> probabilityOfBomb; probabilityOfBomb.resize( gridWidth, std::vector<int>(gridHeight, unknownProbability ) );
 
         std::set<Move> moves;
         for ( int xIndex = 0; xIndex < gridWidth; xIndex++ )

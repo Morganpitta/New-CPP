@@ -34,7 +34,7 @@ int main()
     //         for ( int xIndex = 0; xIndex < gridWidth; xIndex++ )
     //         {
     //             POINT screenPosition = { startPoint.x + LONG((xIndex+0.5f)*tileWidth), startPoint.y + LONG((yIndex+0.5f)*tileHeight) };
-
+    //
     //             Ellipse( context, screenPosition.x - tileWidth/3, screenPosition.y - tileHeight/3, screenPosition.x + tileWidth/3, screenPosition.y + tileHeight/3 );
     //         }
     //     }
@@ -52,17 +52,17 @@ int main()
 
             TileGrid tileGrid = readScreen( context, startPoint, screenWidth, screenHeight, gridWidth, gridHeight );
 
-            for ( int yIndex = 0; yIndex < gridHeight; yIndex++ )
-            {
-                for ( int xIndex = 0; xIndex < gridWidth; xIndex++ )
-                {
-                    std::string string = " " + std::to_string( int(tileGrid[xIndex][yIndex]) ) + " ";
-                    if ( string.size() == 3 ) string += " ";
-                    std::cout << string;
-                }
-                std::cout << std::endl;
-            }
-            std::cout << std::endl;
+            // for ( int yIndex = 0; yIndex < gridHeight; yIndex++ )
+            // {
+            //     for ( int xIndex = 0; xIndex < gridWidth; xIndex++ )
+            //     {
+            //         std::string string = " " + std::to_string( int(tileGrid[xIndex][yIndex]) ) + " ";
+            //         if ( string.size() == 3 ) string += " ";
+            //         std::cout << string;
+            //     }
+            //     std::cout << std::endl;
+            // }
+            // std::cout << std::endl;
 
             std::set<Move> moves;
 
