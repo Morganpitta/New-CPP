@@ -22,8 +22,8 @@ int main()
     // EASY -> 10, 8
     // MEDIUM -> 18, 14
     // HARD -> 24, 20
-    int gridWidth = 18; int gridHeight = 14;
-    int screenWidth = ( endPoint.x - startPoint.x ); int screenHeight = ( endPoint.y - startPoint.y ); 
+    int gridWidth = 24; int gridHeight = 20;
+    int screenWidth = ( endPoint.x - startPoint.x ); int screenHeight = ( endPoint.y - startPoint.y );
     float tileWidth = float(screenWidth) / gridWidth; float tileHeight = float(screenHeight) / gridHeight;
 
     // while (true)
