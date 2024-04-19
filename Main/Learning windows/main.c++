@@ -2,6 +2,12 @@
 #include <iostream>
 #include <algorithm>
 
+std::ostream &operator<<(std::ostream &stream,  POINT point)
+{
+    stream << "(" << point.x << ", " << point.y << ")";
+    return stream;
+}
+
 int main()
 {
     DeviceContextHandleId context = GetDC(NULL);
@@ -11,6 +17,8 @@ int main()
     
     while ( true )
     {
+        if ( GetKeyState('T') & 0x8000 ) { GetCursorPos(&startPoint); std::cout << startPoint << std::endl; }
+
         if ( GetKeyState('Z') & 0x8000 ) { GetCursorPos(&startPoint); break; }
     }
 
@@ -19,10 +27,15 @@ int main()
         if ( !(GetKeyState('Z') & 0x8000) ) { GetCursorPos(&endPoint); break; }
     }
 
+    std::cout << startPoint << ", " << endPoint << std::endl;
+
     // EASY -> 10, 8
     // MEDIUM -> 18, 14
     // HARD -> 24, 20
-    int gridWidth = 24; int gridHeight = 20;
+    int gridWidth; int gridHeight;
+    std::string input;
+    std::cout << "Width: "; std::cin >> input; gridWidth = std::stoi(input);
+    std::cout << "Height: "; std::cin >> input; gridHeight = std::stoi(input);
     int screenWidth = ( endPoint.x - startPoint.x ); int screenHeight = ( endPoint.y - startPoint.y );
     float tileWidth = float(screenWidth) / gridWidth; float tileHeight = float(screenHeight) / gridHeight;
 
@@ -43,7 +56,7 @@ int main()
     {
         while ( true )
         {
-            if ( GetKeyState(VK_F2) & 0x8000 ) break;
+            if ( GetKeyState(VK_F2) & 0x8000 ) { std::cout << "starting" << std::endl; break; }
         }
 
         while( true )
@@ -80,7 +93,10 @@ int main()
             }
             
             if ( moves.size() == 0 )
+            {
+                std::cout << "no move to play, ending" << std::endl;
                 break;
+            }
 
             for ( Move move: moves )
             {
