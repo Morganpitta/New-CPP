@@ -33,9 +33,10 @@
     const RGBQUAD Tile3Color    = { 0x30, 0x30, 0xd3, 0xff };
     const RGBQUAD Tile4Color    = { 0xa2, 0x1f, 0x7b, 0xff };
     const RGBQUAD Tile5Color    = { 0x01, 0x8f, 0xff, 0xff };
+    const RGBQUAD Tile6Color    = { 0xa7, 0x98, 0x04, 0xff };
     const RGBQUAD FlagColor     = { 0x07, 0x36, 0xf2, 0xff };
 
-    const std::array<RGBQUAD,10> tileColours = {{ Tile1Color, Tile2Color, Tile3Color, Tile4Color, Tile5Color, FlagColor, Covered1Color, Covered2Color, Clear1Color, Clear2Color }};
+    const std::array<RGBQUAD,11> tileColours = {{ Tile1Color, Tile2Color, Tile3Color, Tile4Color, Tile5Color, Tile6Color, FlagColor, Covered1Color, Covered2Color, Clear1Color, Clear2Color }};
 
     bool operator==( const RGBQUAD &rgb1, const RGBQUAD &rgb2 )
     {
@@ -56,6 +57,7 @@
         if ( colour == Tile3Color ) return ThreeTile;
         if ( colour == Tile4Color ) return FourTile;
         if ( colour == Tile5Color ) return FiveTile;
+        if ( colour == Tile6Color ) return SixTile;
         if ( colour == FlagColor ) return FlagTile;
         if ( colour == Covered1Color || colour == Covered2Color ) return CoveredTile;
         if ( colour == Clear1Color || colour == Clear2Color ) return ClearTile;
