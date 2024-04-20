@@ -15,6 +15,11 @@
         return std::chrono::duration_cast<chronoNanoseconds>( std::chrono::steady_clock::now().time_since_epoch() );
     }
 
+    float nanosecondsToSeconds( chronoNanoseconds nanoseconds )
+    {
+        return nanoseconds.count()/1000000000.f;
+    }
+
     class FpsLimiter
     {
         float averageFps;
@@ -35,7 +40,7 @@
 
                 //std::cout << std::to_string(std::max( elapsed, maxTimePerFrame ).count()/1000000000.f) << std::endl;
 
-                averageFps = ( averageFps + 1/( std::max( elapsed, maxTimePerFrame ).count()/1000000000.f ) )/2.f;
+                averageFps = ( averageFps + 1/( nanosecondsToSeconds( std::max( elapsed, maxTimePerFrame ) ) ) )/2.f;
                 
                 startTime = timeNow();
 
@@ -48,8 +53,8 @@
 
                 if ( elapsed < maxTimePerFrame )
                 {
-                    //https://stackoverflow.com/questions/51088819/control-loop-time-with-usleep
-                    std::this_thread::sleep_until( std::chrono::steady_clock::time_point(startTime + maxTimePerFrame) );
+                    long long int microseconds = (maxTimePerFrame - elapsed).count() / 1000.f;
+                    sleepFor( microseconds );
                 }
 
                 return restart();

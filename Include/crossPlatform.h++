@@ -16,19 +16,44 @@
         #include <unistd.h> // for usleep
     #endif
 
-    void sleepFor(int milliseconds)
+    //https://stackoverflow.com/questions/13397571/precise-thread-sleep-needed-max-1ms-error/13397866#13397866
+    #ifdef OS_Windows
+        bool windowsSleep( int microseconds )
+        {
+            
+            HANDLE timerHandle;
+            LARGE_INTEGER time;
+            if ( !(timerHandle = CreateWaitableTimer( NULL, true, NULL ) ) )
+                return false;
+
+            time.QuadPart = -microseconds * 10;
+            timeBeginPeriod(1);
+            if ( !SetWaitableTimer( timerHandle, &time, 0, NULL, NULL, false ) )
+            {
+                CloseHandle( timerHandle );
+                return false;
+            }
+            timeEndPeriod(1);
+
+            WaitForSingleObject( timerHandle, INFINITE );
+            CloseHandle( timerHandle );
+
+            return true;
+        }
+    #endif
+    
+    void sleepFor( long long int microseconds )
     {
         #ifdef OS_Windows
-            Sleep(milliseconds);
+            if ( !windowsSleep( microseconds ) )
+                Sleep( microseconds*1000 );
         #elif defined( OS_Linux )
             struct timespec ts;
-            ts.tv_sec = milliseconds / 1000;
-            ts.tv_nsec = (milliseconds % 1000) * 1000000;
+            ts.tv_sec = microseconds / 1000000;
+            ts.tv_nsec = (microseconds % 1000000) * 1000;
             nanosleep(&ts, NULL);
         #else
-            if (milliseconds >= 1000)
-                sleep(milliseconds / 1000);
-            usleep((milliseconds % 1000) * 1000);
+            usleep(microseconds);
         #endif
     }
 
