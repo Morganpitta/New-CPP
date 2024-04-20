@@ -1,9 +1,9 @@
 #if !defined( COLLISION_RECT_HPP )
 #define COLLISION_RECT_HPP
 
-    #include "collisionPolygon.h++"
+    #include "collidable.h++"
 
-    class CollisionRect: public CollisionPolygon 
+    class CollisionRect: public Collidable 
     {
         public:
             sf::Vector2f center;
