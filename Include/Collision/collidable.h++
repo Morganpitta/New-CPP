@@ -10,7 +10,7 @@
         float min;
         float max;
 
-        bool contains( float value )
+        bool contains( float value ) const
         {
             return min <= value && value <= max;
         }
@@ -51,7 +51,7 @@
             virtual PolygonPoints getPoints() const = 0;
             virtual PolygonNormals getNormals() const = 0;
 
-            bool contains( sf::Vector2f position );
+            bool contains( sf::Vector2f position ) const;
 
             static bool areColliding( const CollisionPolygon *polygon1, const CollisionPolygon *polygon2 );
             // Returns a minimum translation vector relative to polygon1
@@ -103,7 +103,7 @@
         return Projection::getOverlap( projection1, projection2 );
     }
 
-    bool CollisionPolygon::contains( sf::Vector2f position )
+    bool CollisionPolygon::contains( sf::Vector2f position ) const
     {
         PolygonPoints points = getPoints();
         PolygonNormals normals = getNormals();

@@ -5,7 +5,7 @@ int main()
 {
     sf::RenderWindow window( sf::VideoMode( {800,800} ), "SAT!" );
 
-    CollisionRect rect1( {200,10}, {200,200} );
+    CollisionRect rect1( {200,20}, {400,400} );
     CollisionRect rect2( {10,10}, {400,400} );
 
     if ( !loadBaseAssets() )
@@ -25,12 +25,12 @@ int main()
                     break;
 
                 case sf::Event::MouseWheelScrolled:
-                    rect1.rotate( 0.01f * event.mouseWheelScroll.delta * event.mouseWheelScroll.delta * event.mouseWheelScroll.delta );
+                    rect1.rotate( 0.1f * event.mouseWheelScroll.delta );
                     break;
             }
         }
 
-        rect1.setPosition( sf::Vector2f( sf::Mouse::getPosition( window ) ) );
+        //rect1.setPosition( sf::Vector2f( sf::Mouse::getPosition( window ) ) );
         sf::Vector2f mtv = CollisionPolygon::getCollision( &rect1, &rect2 );
         rect1.move( mtv/2.f );
         rect2.move( -mtv/2.f );
