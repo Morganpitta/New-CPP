@@ -5,7 +5,7 @@
     #include "Collision/collisionRect.h++"
     #include <deque>
 
-    const sf::Vector2f cardDimensions = {25, 35};
+    const sf::Vector2f cardDimensions = sf::Vector2f(25, 35) * 2.f;
 
     class CardCollection: public sf::Drawable
     {
@@ -17,9 +17,9 @@
 
         public:
             CardCollection( 
-                std::deque<Card *> cards, 
-                sf::Vector2f position = {0,0}, 
-                bool faceUp = false 
+                std::deque<Card *> cards,
+                sf::Vector2f position = {0,0},
+                bool faceUp = false
             ): cards( cards ), 
                collider( new CollisionRect( cardDimensions, position )), 
                position( position ), 
@@ -56,6 +56,12 @@
             
             void move( sf::Vector2f amount );
             void rotate( float amount );
+
+            void combine( CardCollection &collection )
+            {
+                cards.insert( cards.begin(), collection.cards.begin(), collection.cards.end() );
+                collection.cards.clear();
+            }
 
             virtual void draw( sf::RenderTarget& target, sf::RenderStates states ) const;
     };
@@ -95,6 +101,8 @@
         rect.setOrigin( cardDimensions/2.f );
         rect.setPosition( getPosition() );
         rect.setRotation( -getRotation() * (180.f/M_PI) );
+
+        target.draw( rect );
     }
 
 #endif /* TABLETOP_CARD_HPP */

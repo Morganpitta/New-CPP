@@ -15,7 +15,7 @@ void handleInputs( sf::RenderWindow &window )
                 break;
 
             case sf::Event::Resized:
-                handleResize( window, event.size.width, event.size.width, 1600, 800 );
+                handleResize( window, event.size.width, event.size.height, 1600, 1000 );
                 break;
         }
     }
@@ -27,13 +27,13 @@ int main()
 
     cardFactory.registerCard( "one", nullptr );
 
-    sf::RenderWindow window( sf::VideoMode( 1600, 800 ), "Tabletop" );
+    sf::RenderWindow window( sf::VideoMode( 1600, 1000 ), "Tabletop" );
     FpsLimiter fps( 60 );
 
-    Card *card = cardFactory.createCard( "one" );
+    Card *card = cardFactory.createCard( 1, "one" );
     CardCollection collection( card );
 
-    while ( true )
+    while ( window.isOpen() )
     {
         handleInputs( window );
 
@@ -44,7 +44,10 @@ int main()
                 collection.setPosition( mousePosition );
         }
 
-        window.clear( sf::Color::White );
+        window.clear( sf::Color::Black );
+        sf::RectangleShape rect( {1600, 1000} );
+        rect.setFillColor( sf::Color::Green );
+        window.draw( rect );
 
         window.draw( collection );
 
