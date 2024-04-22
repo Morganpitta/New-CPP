@@ -23,6 +23,7 @@
             ): cards( cards ), 
                collider( new CollisionRect( cardDimensions, position )), 
                position( position ), 
+               rotation( 0 ),
                faceUp( faceUp )
             {
 

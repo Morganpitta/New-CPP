@@ -30,6 +30,9 @@ int main()
     sf::RenderWindow window( sf::VideoMode( 1600, 1000 ), "Tabletop" );
     FpsLimiter fps( 60 );
 
+    if ( !loadBaseAssets() )
+        return 1;
+
     Card *card = cardFactory.createCard( 1, "one" );
     CardCollection collection( card );
 
@@ -52,6 +55,7 @@ int main()
         window.draw( collection );
 
         window.display();
+        fps.restartAndSleep();
     }
 
     return 0;
